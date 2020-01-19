@@ -1,13 +1,14 @@
 <template>
   <div id="app">
-    <TodoList :items='sortedItemDes' @onItemDone='done' />
-    <InputForm @onSave='save' />
+    <TodoList :items="sortedItemDes" @onItemDone="done" />
+    <InputForm @onSave="save" />
   </div>
 </template>
 
 <script>
-import TodoList from '@/components/TodoList'
-import InputForm from '@/components/InputForm'
+import TodoList from "@/components/TodoList";
+import InputForm from "@/components/InputForm";
+import { mapState, mapMutations } from "vuex";
 
 export default {
   name: "app",
@@ -15,20 +16,17 @@ export default {
     TodoList,
     InputForm
   },
-  data() {
-    return {
-      items: []
-    };
-  },
   filters: {
     capitalize(value) {
       return value.toUpperCase();
     }
   },
-  mounted () {
-    this.items = JSON.parse(localStorage['todoItems'])
+  mounted() {
+    this.initItem(JSON.parse(localStorage["todoItems"]));
+    // this.items = JSON.parse(localStorage["todoItems"]);
   },
   computed: {
+    ...mapState(["items"]),
     sortedItemDes() {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       return this.items
@@ -41,6 +39,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations[("addItem", "initItem")],
     done(id) {
       this.items = this.items.map(element => {
         if (element.time === id) {
@@ -48,15 +47,14 @@ export default {
         }
         return element;
       });
-      localStorage['todoItems'] = JSON.stringify(this.items)
+      this.initItem(JSON.parse(localStorage["todoItems"]));
     },
     save(text) {
-      this.items.push({
+      this.addItem({
         text: text,
         time: Date.now(),
         completed: false
-      })
-      localStorage['todoItems'] = JSON.stringify(this.items)
+      });
     }
   }
 };
